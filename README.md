@@ -1,16 +1,17 @@
-# The Dynamics of Asymmetry: Temporal Evolution of 2-Edge-Strongly-Connected Cores in Knowledge Exchange Networks
+# The Dynamics of Asymmetry
 
-Python implementation for longitudinal **2-Edge-Strongly-Connected Component (2-ESCC)** extraction, set-theoretic core transition operators (\(\mathcal{R}_{t \to t+1}, \mathcal{C}_{t \to t+1}, \mathcal{X}_{t \to t+1}\)), and the **Core Volatility Index (\(\nu_t\))** in time-varying directed networks.
+Python implementation for longitudinal **2-Edge-Strongly-Connected Component (2-ESCC)** extraction, set-theoretic core transition operators, and the **Core Volatility Index** in time-varying directed networks.
 
 ## Overview
 
-Traditional connectivity metrics (such as the Largest Strongly Connected Component, LSCC) often mask structural fragility in asymmetric exchange networks. This repository operationalizes a dynamic **topological sieve** that isolates the resilient core (\(\Omega_t = \text{L2-ESCC}(G_t)\)), where every directed channel is reinforced by at least two edge-disjoint directed paths (\(\lambda_{G_t}(u, v) \ge 2\)).
+A Python toolkit for analyzing resilient cores and structural transitions in dynamic directed networks.
 
 ### Key Features
-- **Exact L2-ESCC Extraction (`find_2_escc`):** Iterative strong-bridge decomposition on induced subgraphs inside the LSCC.
-- **Core Transition Operators:** Tracks Core Retention (\(\mathcal{R}\)), Contraction (\(\mathcal{C}\)), Expansion (\(\mathcal{X}\)), and **Topological Displacement** events.
-- **Core Volatility Index (\(\nu_t\)):** Measures structural reconfiguration of the resilient backbone independently of peripheral tie churn (\(\mathcal{C}_E\)).
-- **GitHub Longitudinal Pipeline:** Reproducible data collection and monthly snapshot builder across 28 open-source knowledge exchange ecosystems.
+
+- **Exact L2-ESCC Extraction (`find_2_escc`):** Iterative strong-bridge decomposition.
+- **Core Transition Operators:** Monitors Retention, Contraction, Expansion, and Displacement.
+- **Core Volatility Index:** Quantifies backbone reconfiguration separate from peripheral tie churn.
+- **Longitudinal Pipeline:** Automated snapshot builder for knowledge exchange ecosystems.
 
 ## Repository Structure
 
