@@ -1,4 +1,5 @@
 import os
+import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 import pandas as pd
@@ -8,7 +9,8 @@ def plot_core_volatility_and_churn(owner, repo, base_dir="./data/temporal_networ
     """
     Plot longitudinal trajectories comparing 2-ESCC Core Volatility (v_t),
     LSCC Edge Volatility, and Global Tie Churn Rate (C_E).
-    Saves high-resolution PNG and vector PDF figures.
+    Undefined transitions where the core is empty across both adjacent windows
+    are masked as NaN per Equation 5. Saves high-resolution PNG and vector PDF figures.
     """
     project_dir = os.path.join(base_dir, f"temporal_networks_{owner}_{repo}")
     csv_path = os.path.join(project_dir, f"core_volatility_metrics_{owner}_{repo}.csv")
@@ -22,12 +24,22 @@ def plot_core_volatility_and_churn(owner, repo, base_dir="./data/temporal_networ
         print("Metrics CSV file is empty.")
         return
 
+    # Mask undefined transitions where the core is absent in both adjacent windows (Eq. 5)
+    df_plot = df.copy()
+    if {"Core_Size_t", "Core_Size_t+1"}.issubset(df_plot.columns):
+        empty_core_mask = (df_plot["Core_Size_t"] == 0) & (df_plot["Core_Size_t+1"] == 0)
+        df_plot.loc[empty_core_mask, "Core_Volatility"] = np.nan
+
+    if {"LSCC_Size_t", "LSCC_Size_t+1", "LSCC_Edge_Volatility"}.issubset(df_plot.columns):
+        empty_lscc_mask = (df_plot["LSCC_Size_t"] == 0) & (df_plot["LSCC_Size_t+1"] == 0)
+        df_plot.loc[empty_lscc_mask, "LSCC_Edge_Volatility"] = np.nan
+
     sns.set_theme(style="whitegrid")
     fig, ax = plt.subplots(figsize=(14, 6.8))
 
     # 1. 2-ESCC Core Volatility Index (v_t)
     sns.lineplot(
-        data=df,
+        data=df_plot,
         x="Month_t",
         y="Core_Volatility",
         marker="o",
@@ -39,9 +51,9 @@ def plot_core_volatility_and_churn(owner, repo, base_dir="./data/temporal_networ
     )
 
     # 2. LSCC Edge Volatility
-    if "LSCC_Edge_Volatility" in df.columns:
+    if "LSCC_Edge_Volatility" in df_plot.columns:
         sns.lineplot(
-            data=df,
+            data=df_plot,
             x="Month_t",
             y="LSCC_Edge_Volatility",
             marker="^",
@@ -55,7 +67,7 @@ def plot_core_volatility_and_churn(owner, repo, base_dir="./data/temporal_networ
 
     # 3. Global Tie Churn Rate (C_E)
     sns.lineplot(
-        data=df,
+        data=df_plot,
         x="Month_t",
         y="Global_Tie_Churn_CE",
         marker="s",
@@ -73,13 +85,13 @@ def plot_core_volatility_and_churn(owner, repo, base_dir="./data/temporal_networ
         fontweight="bold",
         pad=45,
     )
-    ax.set_xlabel("Temporal Window ($t$)", fontsize=12, labelpad=10)
+    ax.set_xlabel("Temporal Window ($t$)", fontsize= 12, labelpad=10)
     ax.set_ylabel("Metric Value", fontsize=12, labelpad=10)
     ax.set_ylim(-0.05, 1.05)
 
-    step = max(1, len(df) // 15)
-    tick_indices = list(range(0, len(df), step))
-    tick_labels = [str(df["Month_t"].iloc[i]) for i in tick_indices]
+    step = max(1, len(df_plot) // 15)
+    tick_indices = list(range(0, len(df_plot), step))
+    tick_labels = [str(df_plot["Month_t"].iloc[i]) for i in tick_indices]
 
     ax.set_xticks(tick_indices)
     ax.set_xticklabels(tick_labels, rotation=45, ha="right")
